@@ -1,18 +1,35 @@
-import express from 'express';
+// api/setBoost.js
+import { ethers } from 'ethers';
+import stakingAbi from '../abis/stakingAbi.json' assert { type: "json" };
 
-const router = express.Router();
-
-router.post('/', async (req, res) => {
-    const { user, boost } = req.body;
-
-    if (!user || typeof boost !== 'number') {
-        return res.status(400).json({ error: 'Invalid parameters' });
+export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Methods', 'POST');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        return res.status(200).end();
     }
 
-    // Simulated on-chain interaction (you can expand with ethers.js later)
-    console.log(`Boost set for ${user}: ${boost}%`);
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
 
-    return res.json({ success: true, message: `Boost applied to ${user}`, boost });
-});
+    const { user, boost } = req.body;
+    if (!user || boost === undefined) {
+        return res.status(400).json({ error: 'Missing user or boost' });
+    }
 
-export default router;
+    try {
+        const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+        const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+        const stakingContract = new ethers.Contract(process.env.STAKING_CONTRACT, stakingAbi, wallet);
+
+        const tx = await stakingContract.setUserBoostApy(user, boost);
+        await tx.wait();
+
+        return res.status(200).json({ success: true, txHash: tx.hash });
+    } catch (error) {
+        console.error('Boost Error:', error);
+        return res.status(500).json({ error: 'Failed to set boost' });
+    }
+}
