@@ -1,12 +1,15 @@
 // api/setBoost.js
 import { ethers } from 'ethers';
-import stakingAbi from '../abis/stakingAbi.json' assert { type: "json" };
+import stakingAbi from '../abis/stakingAbi.json';
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // ✅ CORS HEADERS
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific domain
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // ✅ Respond to preflight OPTIONS request
     if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Methods', 'POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
         return res.status(200).end();
     }
 
@@ -15,6 +18,7 @@ export default async function handler(req, res) {
     }
 
     const { user, boost } = req.body;
+
     if (!user || boost === undefined) {
         return res.status(400).json({ error: 'Missing user or boost' });
     }
@@ -27,9 +31,9 @@ export default async function handler(req, res) {
         const tx = await stakingContract.setUserBoostApy(user, boost);
         await tx.wait();
 
-        return res.status(200).json({ success: true, txHash: tx.hash });
+        res.status(200).json({ success: true, txHash: tx.hash });
     } catch (error) {
         console.error('Boost Error:', error);
-        return res.status(500).json({ error: 'Failed to set boost' });
+        res.status(500).json({ error: 'Boost failed', details: error.message });
     }
 }
