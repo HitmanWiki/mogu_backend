@@ -1,6 +1,6 @@
 // /api/setBoost.js
 import { ethers } from 'ethers';
-import stakingAbi from '../../abis/stakingAbi.json'; // adjust if your path is different
+import stakingAbi from '../abis/stakingAbi.json'; // adjust if your path is different
 
 export default async function handler(req, res) {
     // ✅ Handle CORS
