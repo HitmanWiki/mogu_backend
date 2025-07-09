@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
     if (!wallet) return res.status(400).json({ error: 'Wallet address is required' });
 
     try {
-        const url = `https://eth-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_KEY}/getNFTsForOwner?owner=${wallet}&contractAddresses[]=${NFT_CONTRACT}`;
+        const url = `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}/getNFTsForOwner?owner=${wallet}&contractAddresses[]=${NFT_CONTRACT}`;
 
         const response = await fetch(url);
         const data = await response.json();
