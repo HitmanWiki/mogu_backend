@@ -1,16 +1,15 @@
-// api/setBoost.js
+// /api/setBoost.js
 import { ethers } from 'ethers';
-import stakingAbi from '../abis/stakingAbi.json';
+import stakingAbi from '../../abis/stakingAbi.json'; // adjust if your path is different
 
 export default async function handler(req, res) {
-    // ✅ CORS HEADERS
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Or restrict to specific domain
+    // ✅ Handle CORS
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Replace * with frontend domain if needed
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // ✅ Respond to preflight OPTIONS request
     if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+        return res.status(200).end(); // Allow CORS preflight
     }
 
     if (req.method !== 'POST') {
@@ -32,8 +31,8 @@ export default async function handler(req, res) {
         await tx.wait();
 
         res.status(200).json({ success: true, txHash: tx.hash });
-    } catch (error) {
-        console.error('Boost Error:', error);
-        res.status(500).json({ error: 'Boost failed', details: error.message });
+    } catch (err) {
+        console.error('Boost Error:', err);
+        res.status(500).json({ error: 'Boost failed', message: err.message });
     }
 }
